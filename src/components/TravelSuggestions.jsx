@@ -17,15 +17,17 @@ const TravelSuggestions = ({ destination, days, hasCar }) => {
           restaurants: data.restaurants.slice(0, 5),
           events: data.events.slice(0, 3),
         });
+        setError(null);
       } catch (err) {
-        setError('Failed to fetch suggestions. Please try again.');
+        setSuggestions(null);
+        setError('Destination not found or failed to fetch suggestions. Please try another destination.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchSuggestions();
-  }, [destination, days, hasCar]);
+  }, [destination]);
 
   if (loading) {
     return <div className="mt-8 text-center">Loading suggestions...</div>;
@@ -33,6 +35,10 @@ const TravelSuggestions = ({ destination, days, hasCar }) => {
 
   if (error) {
     return <div className="mt-8 text-center text-red-500">{error}</div>;
+  }
+
+  if (!suggestions) {
+    return null;
   }
 
   return (
