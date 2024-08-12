@@ -12,15 +12,11 @@ const TravelSuggestions = ({ destination, days, hasCar }) => {
       try {
         setLoading(true);
         const data = await fetchPlacesData(destination);
-        setSuggestions({
-          activities: data.attractions.slice(0, 5),
-          restaurants: data.restaurants.slice(0, 5),
-          events: data.events.slice(0, 3),
-        });
+        setSuggestions(data);
         setError(null);
       } catch (err) {
         setSuggestions(null);
-        setError('Destination not found or failed to fetch suggestions. Please try another destination.');
+        setError('Failed to fetch suggestions. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -45,12 +41,12 @@ const TravelSuggestions = ({ destination, days, hasCar }) => {
     <div className="w-full max-w-4xl mt-8 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Suggested Activities</CardTitle>
+          <CardTitle>Top Attractions</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="list-disc pl-5">
-            {suggestions.activities.map((activity, index) => (
-              <li key={index}>{activity.name}</li>
+            {suggestions.attractions.map((attraction, index) => (
+              <li key={index}>{attraction.name} - Rating: {attraction.rating}</li>
             ))}
           </ul>
         </CardContent>
@@ -63,7 +59,7 @@ const TravelSuggestions = ({ destination, days, hasCar }) => {
         <CardContent>
           <ul className="list-disc pl-5">
             {suggestions.events.map((event, index) => (
-              <li key={index}>{event.name} - {event.date}</li>
+              <li key={index}>{event.name} - {new Date(event.date).toLocaleDateString()}</li>
             ))}
           </ul>
         </CardContent>
@@ -71,12 +67,12 @@ const TravelSuggestions = ({ destination, days, hasCar }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recommended Restaurants</CardTitle>
+          <CardTitle>Top Rated Restaurants</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="list-disc pl-5">
             {suggestions.restaurants.map((restaurant, index) => (
-              <li key={index}>{restaurant.name}</li>
+              <li key={index}>{restaurant.name} - Rating: {restaurant.rating}</li>
             ))}
           </ul>
         </CardContent>
