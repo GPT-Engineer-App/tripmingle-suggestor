@@ -1,44 +1,38 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { fetchPlacesData } from '../lib/api';
 
 const TravelSuggestions = ({ destination, days, hasCar }) => {
   const [suggestions, setSuggestions] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Mock API call to get suggestions
     const fetchSuggestions = async () => {
-      // Simulating API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mock data
-      const mockSuggestions = {
-        activities: [
-          "Visit the local museum",
-          "Take a walking tour of the city",
-          "Enjoy a picnic in the park",
-          hasCar ? "Drive to a nearby scenic viewpoint" : "Take a bike tour",
-        ],
-        events: [
-          { name: "Local Food Festival", date: "2023-06-15" },
-          { name: "Summer Concert Series", date: "2023-06-17" },
-          { name: "Art Exhibition Opening", date: "2023-06-18" },
-        ],
-        restaurants: [
-          "The Cozy Corner Café",
-          "Gourmet Delights Restaurant",
-          "Seaside Seafood Spot",
-          "Vegan Vibes Eatery",
-        ],
-      };
-
-      setSuggestions(mockSuggestions);
+      try {
+        setLoading(true);
+        const data = await fetchPlacesData(destination);
+        setSuggestions({
+          activities: data.attractions.slice(0, 5),
+          restaurants: data.restaurants.slice(0, 5),
+          events: data.events.slice(0, 3),
+        });
+      } catch (err) {
+        setError('Failed to fetch suggestions. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchSuggestions();
   }, [destination, days, hasCar]);
 
-  if (!suggestions) {
+  if (loading) {
     return <div className="mt-8 text-center">Loading suggestions...</div>;
+  }
+
+  if (error) {
+    return <div className="mt-8 text-center text-red-500">{error}</div>;
   }
 
   return (
@@ -50,7 +44,7 @@ const TravelSuggestions = ({ destination, days, hasCar }) => {
         <CardContent>
           <ul className="list-disc pl-5">
             {suggestions.activities.map((activity, index) => (
-              <li key={index}>{activity}</li>
+              <li key={index}>{activity.name}</li>
             ))}
           </ul>
         </CardContent>
@@ -76,7 +70,7 @@ const TravelSuggestions = ({ destination, days, hasCar }) => {
         <CardContent>
           <ul className="list-disc pl-5">
             {suggestions.restaurants.map((restaurant, index) => (
-              <li key={index}>{restaurant}</li>
+              <li key={index}>{restaurant.name}</li>
             ))}
           </ul>
         </CardContent>
